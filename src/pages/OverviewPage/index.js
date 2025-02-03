@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import { WEATHER_DATA_TYPES } from "../../store/constants";
 import {
   selectDailyData,
@@ -24,7 +23,6 @@ import {
   filterWindspeedData,
 } from "./helpers";
 
-// Default Date Range Helper
 const getValidDateRange = (reduxDateRange) => {
   const startDate = reduxDateRange?.startDate
     ? new Date(reduxDateRange.startDate)
@@ -41,24 +39,21 @@ const getValidDateRange = (reduxDateRange) => {
       };
 };
 
-const OverViewPage = () => {
+const OverviewPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
-  // Selectors
   const reduxDateRange = useSelector(selectDateRange);
   const countryFilter = useSelector(selectCountryFilter);
   const dailyData = useSelector(selectDailyData) || {};
   const isLoading = useSelector(selectIsLoading);
   const error = useSelector(selectError);
 
-  // Validated Date Range
   const dateRange = useMemo(
     () => getValidDateRange(reduxDateRange),
     [reduxDateRange]
   );
 
-  // Fetch data when date range changes
   useEffect(() => {
     dispatch({
       type: WEATHER_DATA_TYPES.FETCH_DAILY_DATA,
@@ -69,7 +64,6 @@ const OverViewPage = () => {
     });
   }, [dispatch, dateRange]);
 
-  // Handlers
   const handleDateRangeSelect = (newDateRange) => {
     if (newDateRange?.startDate && newDateRange?.endDate) {
       dispatch(
@@ -84,39 +78,42 @@ const OverViewPage = () => {
   const handleCountryFilterChange = (newCountryFilter) =>
     dispatch(setCountryFilter(newCountryFilter));
 
-  // Dynamic Filtering
   const filteredData = useMemo(() => {
-    const filters = {
-      temperature: filterTemperatureData,
-      precipitation: filterPrecipitationData,
-      windspeed: filterWindspeedData,
+    return {
+      temperature: filterTemperatureData(dailyData, countryFilter),
+      precipitation: filterPrecipitationData(dailyData, countryFilter),
+      windspeed: filterWindspeedData(dailyData, countryFilter),
     };
-
-    return Object.fromEntries(
-      Object.entries(filters).map(([key, filterFn]) => [
-        key,
-        filterFn(dailyData, countryFilter),
-      ])
-    );
   }, [dailyData, countryFilter]);
 
-  // Chart Configs
   const charts = [
-    { component: TemperatureChart, data: filteredData.temperature },
-    { component: PrecipitationChart, data: filteredData.precipitation },
-    { component: WindSpeedChart, data: filteredData.windspeed },
+    {
+      component: TemperatureChart,
+      data: filteredData.temperature,
+      type: "temperature",
+    },
+    {
+      component: PrecipitationChart,
+      data: filteredData.precipitation,
+      type: "precipitation",
+    },
+    {
+      component: WindSpeedChart,
+      data: filteredData.windspeed,
+      type: "windspeed",
+    },
   ];
 
   if (isLoading) return <OverviewPageSkeleton />;
   if (error)
     return <div className="text-center text-red-500">Error: {error}</div>;
 
-  const handleChartClick = () => {
-    navigate("/details"); // Navigate to the details page when chart is clicked
+  const handleChartClick = (chartType) => {
+    navigate("/details", { state: { dateRange, countryFilter, chartType } });
   };
 
   return (
-    <div className="p-6 bg-lightGrey h-full">
+    <div className="p-6 h-full">
       <h2 className="text-xl font-roboto font-semibold mb-5">Overview</h2>
       <div className="flex gap-2">
         <DatePicker
@@ -130,11 +127,11 @@ const OverViewPage = () => {
       </div>
 
       <div className="mt-3 hidden md:grid lg:grid-cols-2 gap-4">
-        {charts.map(({ component: ChartComponent, data }, index) => (
+        {charts.map(({ component: ChartComponent, data, type }, index) => (
           <div
             key={index}
             className="cursor-pointer"
-            onClick={handleChartClick} // Trigger navigation on click
+            onClick={() => handleChartClick(type)}
           >
             <ChartComponent data={data} />
           </div>
@@ -147,4 +144,4 @@ const OverViewPage = () => {
   );
 };
 
-export default OverViewPage;
+export default OverviewPage;
