@@ -65,7 +65,6 @@ const ChartDropdownMenu = ({
         </div>
       ))}
 
-      {/* Done button */}
       <div className="flex justify-end px-4 py-3 border-t border-lightSilver">
         <Button onClick={handleDone}>Done</Button>
       </div>

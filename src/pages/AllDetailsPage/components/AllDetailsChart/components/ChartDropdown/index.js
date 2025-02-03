@@ -16,13 +16,14 @@ const ChartDropdown = ({ selectedItems, setSelectedItems }) => {
         isOpen={isDropdownOpen}
         onClick={toggleDropdown}
       >
-        lalal
+        Select Charts here
       </Dropdown>
 
       {isDropdownOpen && (
         <ChartDropdownMenu
           selectedItems={selectedItems}
           setSelectedItems={setSelectedItems}
+          onDone={() => setIsDropdownOpen(false)}
         />
       )}
     </div>
