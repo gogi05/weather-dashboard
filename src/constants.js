@@ -17,7 +17,7 @@ export const LOCATIONS_LIST = [
     longitude: "4.3517",
   },
   {
-    id: "brzil",
+    id: "brazil",
     name: "Brazil",
     latitude: "-14.2350",
     longitude: "-51.9253",
@@ -41,7 +41,7 @@ export const LOCATIONS_LIST = [
     longitude: "78.9629",
   },
   {
-    id: "sriLanka",
+    id: "srilanka",
     name: "Sri Lanka",
     latitude: "7.8731",
     longitude: "80.7718",
