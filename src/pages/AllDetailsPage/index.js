@@ -7,7 +7,8 @@ import {
   selectIsLoading,
   selectError,
   selectCountryFilter,
-  selectDateRange, // Import the selectDateRange selector from Redux
+  selectDateRange,
+  selectHourlyUnits, // Import selectHourlyUnits
 } from "../../store/selectors";
 import { setCountryFilter } from "../../store/weatherActions";
 import DatePicker from "../../components/DatePicker";
@@ -28,17 +29,17 @@ const DetailsPage = () => {
   } = location.state || {};
 
   // Get the date range and country filter from Redux store or use fallback values
-  const defaultDateRange = useSelector(selectDateRange); // Get dateRange from Redux
-  const defaultCountryFilter = useSelector(selectCountryFilter); // Get countryFilter from Redux
+  const defaultDateRange = useSelector(selectDateRange);
+  const defaultCountryFilter = useSelector(selectCountryFilter);
 
-  // Set initial state for dateRange and countryFilter using location state or Redux values
+  // Set initial state for dateRange and countryFilter
   const [dateRange, setDateRange] = useState(navDateRange || defaultDateRange);
-
   const [countryFilter, setCountryFilterState] = useState(
     navCountryFilter || defaultCountryFilter || "All Countries Selected"
   );
 
   const hourlyData = useSelector(selectHourlyData) || {};
+  const hourlyUnits = useSelector(selectHourlyUnits) || {}; // Fetch hourlyUnits
   const isLoading = useSelector(selectIsLoading);
   const error = useSelector(selectError);
 
@@ -66,7 +67,7 @@ const DetailsPage = () => {
     dispatch(setCountryFilter(newCountryFilter));
   };
 
-  // Filterinf data for the countryDropdown selction
+  // Filtering data for the countryDropdown selection
   const filteredHourlyData = useMemo(() => {
     if (
       !countryFilter ||
@@ -97,7 +98,11 @@ const DetailsPage = () => {
         />
       </div>
       <div className="mt-3">
-        <AllDetailsChart data={filteredHourlyData} chartType={chartType} />
+        <AllDetailsChart
+          data={filteredHourlyData}
+          units={hourlyUnits}
+          chartType={chartType}
+        />
       </div>
 
       <div className="mt-10 block md:hidden">
